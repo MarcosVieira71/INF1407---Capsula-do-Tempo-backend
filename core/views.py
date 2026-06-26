@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema
 from .models import Capsula, Usuario
 from .serializers import (
     CapsulaSerializer,
+    DeleteUsuarioSerializer,
     UsuarioSerializer,
     AuthorizeSerializer,
     PasswordResetConfirmSerializer,
@@ -28,6 +29,13 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        serializer = DeleteUsuarioSerializer(data=request.data, context=self.get_serializer_context())
+        serializer.is_valid(raise_exception=True)
+
+        request.user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @extend_schema(tags=["Autenticação"])

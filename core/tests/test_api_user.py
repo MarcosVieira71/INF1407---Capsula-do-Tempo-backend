@@ -61,3 +61,19 @@ class UserAPITest(APITestCase):
         self.assertEqual(self.user.nome, 'Edited User 2')
         self.assertEqual(self.user.email, 'edited2@example.com')
         self.assertTrue(self.user.check_password('profilepass123'))
+
+    def test_delete_current_user_requires_authentication(self):
+        resp = self.client.delete('/api/user/', {'password': 'profilepass123'}, format='json')
+        self.assertEqual(resp.status_code, 401)
+
+    def test_delete_current_user_with_valid_password(self):
+        self.auth()
+        resp = self.client.delete('/api/user/', {'password': 'profilepass123'}, format='json')
+        self.assertEqual(resp.status_code, 204)
+        self.assertFalse(Usuario.objects.filter(pk=self.user.pk).exists())
+
+    def test_delete_current_user_with_invalid_password(self):
+        self.auth()
+        resp = self.client.delete('/api/user/', {'password': 'wrong-password'}, format='json')
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(Usuario.objects.filter(pk=self.user.pk).exists())

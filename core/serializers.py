@@ -56,6 +56,16 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return instance
 
 
+class DeleteUsuarioSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+
+    def validate_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Senha inválida para excluir a conta.')
+        return value
+
+
 class ItemTextoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemTexto
