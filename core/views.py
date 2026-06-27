@@ -10,7 +10,7 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import Capsula, Usuario
 from .serializers import (
@@ -40,7 +40,7 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
     def delete(self, request, *args, **kwargs):
-        """Valida a senha informada e remove definitivamente a conta do usuário autenticado."""
+        """Remove definitivamente a conta do usuário autenticado."""
         serializer = DeleteUsuarioSerializer(data=request.data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
 
@@ -79,6 +79,36 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         return Response({'detail': 'Senha redefinida com sucesso.'}, status=status.HTTP_200_OK)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar cápsulas",
+        description="Lista todas as cápsulas pertencentes ao usuário autenticado.",
+    ),
+    create=extend_schema(
+        summary="Criar cápsula",
+        description="Cria uma nova cápsula e a vincula automaticamente ao usuário autenticado.",
+    ),
+    retrieve=extend_schema(
+        summary="Detalhar cápsula",
+        description="Retorna os detalhes de uma cápsula específica do usuário autenticado.",
+    ),
+    update=extend_schema(
+        summary="Atualizar cápsula",
+        description="Atualiza completamente uma cápsula, desde que ela ainda esteja no período permitido de edição.",
+    ),
+    partial_update=extend_schema(
+        summary="Atualizar parcialmente cápsula",
+        description="Atualiza parcialmente uma cápsula, desde que ela ainda esteja no período permitido de edição.",
+    ),
+    destroy=extend_schema(
+        summary="Excluir cápsula",
+        description="Remove uma cápsula do usuário autenticado de forma permanente.",
+    ),
+    authorize=extend_schema(
+        summary="Autorizar edição de cápsula",
+        description="Verifica se a senha informada autoriza a edição da cápsula selecionada.",
+    ),
+)
 @extend_schema(tags=["Cápsulas"])
 class CapsulaViewSet(viewsets.ModelViewSet):
     """Gerencia listagem, criação, edição e remoção de cápsulas do usuário autenticado."""
