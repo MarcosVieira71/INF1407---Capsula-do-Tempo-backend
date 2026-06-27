@@ -15,7 +15,7 @@ ALLOWED_HOSTS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://juliazib.github.io/INF1407---Capsula-do-Tempo-frontend/"
+"https://inf-1407-capsula-do-tempo-frontend.vercel.app/"
 ]
 
 INSTALLED_APPS = [
