@@ -22,10 +22,12 @@ Tudo o que foi desenvolvido está funcionando.
 
 ### 1. Acesso via site
 Para testar o backend pelo Swagger, acesse o link:
-👉 **()**
+👉 **(https://inf-1407-capsula-do-tempo-backend.vercel.app/api/docs)**
 
 ### 2. Execução em ambiente local
 Caso deseje rodar o backend em sua máquina, certifique-se de que tem o Python instalado e siga os passos a seguir. 
+
+Você deve configurar o DATABASE_URL arquivo .env na raiz do projeto.
 
 ```bash
 # 1. Clonar o repositório
