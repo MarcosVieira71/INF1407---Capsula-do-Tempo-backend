@@ -1,3 +1,10 @@
+"""
+Módulo de serializers para validação e transformação dos dados da API.
+
+Este módulo concentra a serialização de usuários, cápsulas e fluxos de
+autenticação auxiliares, incluindo exclusão de conta e redefinição de senha.
+"""
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -33,11 +40,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'nome', 'email', 'password')
 
     def validate(self, attrs):
+        """Exige senha no cadastro e permite atualizações sem troca obrigatória de senha."""
         if self.instance is None and not attrs.get('password'):
             raise serializers.ValidationError({'password': 'A senha é obrigatória.'})
         return attrs
 
     def create(self, validated_data):
+        """Cria um novo usuário aplicando hash seguro à senha recebida."""
         password = validated_data.pop('password')
         user = Usuario(**validated_data)
         user.set_password(password)
@@ -45,6 +54,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
+        """Atualiza campos do usuário e troca a senha quando uma nova senha é enviada."""
         password = validated_data.pop('password', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -60,6 +70,7 @@ class DeleteUsuarioSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate_password(self, value):
+        """Confere se a senha informada corresponde ao usuário autenticado antes da exclusão."""
         user = self.context['request'].user
         if not user.check_password(value):
             raise serializers.ValidationError('Senha inválida para excluir a conta.')
@@ -111,6 +122,7 @@ class CapsulaSerializer(serializers.ModelSerializer):
         fields = ('id', 'titulo', 'data_abertura', 'criada_em', 'senha', 'textos')
 
     def create(self, validated_data):
+        """Cria uma cápsula com senha opcional e persiste o texto inicial obrigatório."""
         request = self.context.get('request')
         texto = None
         if request is not None:
@@ -130,6 +142,7 @@ class CapsulaSerializer(serializers.ModelSerializer):
         return capsula
 
     def update(self, instance, validated_data):
+        """Atualiza dados da cápsula validando janela de edição e senha quando protegida."""
         validated_data.pop('usuario', None)
 
         if not instance.pode_ser_editada():
@@ -163,6 +176,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def save(self):
+        """Gera UID/token e envia instruções de recuperação para o e-mail encontrado."""
         email = self.validated_data['email']
         user_model = get_user_model()
         user = user_model.objects.filter(email__iexact=email).first()
@@ -188,6 +202,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, min_length=8)
 
     def validate(self, attrs):
+        """Valida identificador do usuário, token de recuperação e anexa o usuário ao payload validado."""
         user_model = get_user_model()
         user = None
 
@@ -214,6 +229,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return attrs
 
     def save(self):
+        """Define a nova senha do usuário validado e persiste a alteração."""
         user = self.validated_data['user']
         user.set_password(self.validated_data['new_password'])
         user.save()

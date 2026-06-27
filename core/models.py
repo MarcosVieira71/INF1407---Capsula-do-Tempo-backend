@@ -19,6 +19,7 @@ class Usuario(AbstractUser):
     nome = models.CharField(max_length=255)
 
     def __str__(self):
+        """Retorna o nome do usuário para representação legível em logs e interface administrativa."""
         return self.nome
 
 
@@ -39,6 +40,7 @@ class Capsula(models.Model):
         return not self.esta_aberta()
     
     def __str__(self):
+        """Retorna o título da cápsula para exibição textual do objeto."""
         return self.titulo
 
     def clean(self):

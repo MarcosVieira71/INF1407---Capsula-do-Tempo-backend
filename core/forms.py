@@ -1,3 +1,10 @@
+"""
+Módulo de formulários para criação e edição de usuários e cápsulas.
+
+Este módulo define formulários de entrada para cadastro, atualização de perfil,
+criação de cápsulas e edição de conteúdo textual associado.
+"""
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import Capsula, Usuario, ItemTexto
@@ -24,6 +31,7 @@ class CapsulaForm(forms.ModelForm):
         fields = ['titulo', 'data_abertura']
 
     def clean(self):
+        """Valida se o texto obrigatório da cápsula foi informado antes de persistir os dados."""
         cleaned_data = super().clean()
         texto = cleaned_data.get('texto')
 
@@ -83,6 +91,7 @@ class CapsulaEdicaoForm(forms.ModelForm):
         fields = ['titulo', 'data_abertura']
 
     def clean(self):
+        """Garante que o texto editado da cápsula não seja submetido vazio."""
         cleaned_data = super().clean()
         texto = cleaned_data.get('texto')
 
@@ -92,6 +101,7 @@ class CapsulaEdicaoForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True, item=None):
+        """Salva alterações da cápsula e atualiza ou cria o ItemTexto correspondente."""
         capsula = super().save(commit=False)
 
         if commit:
