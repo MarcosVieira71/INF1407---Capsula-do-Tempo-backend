@@ -7,8 +7,15 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-for-production')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".vercel.app",
+]
+
+CORS_ALLOWED_ORIGINS = [
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
