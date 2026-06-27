@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import serializers
@@ -120,6 +121,11 @@ class CapsulaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Capsula
         fields = ('id', 'titulo', 'data_abertura', 'criada_em', 'senha', 'textos')
+
+    def validate_data_abertura(self, value):
+        if value < timezone.localdate():
+            raise serializers.ValidationError('A data de abertura não pode estar no passado.')
+        return value
 
     def create(self, validated_data):
         """Cria uma cápsula com senha opcional e persiste o texto inicial obrigatório."""
