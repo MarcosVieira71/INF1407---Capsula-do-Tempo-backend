@@ -123,6 +123,7 @@ class CapsulaSerializer(serializers.ModelSerializer):
         fields = ('id', 'titulo', 'data_abertura', 'criada_em', 'senha', 'textos')
 
     def validate_data_abertura(self, value):
+        """Impede a criação de cápsulas com data de abertura no passado."""
         if value < timezone.localdate():
             raise serializers.ValidationError('A data de abertura não pode estar no passado.')
         return value
